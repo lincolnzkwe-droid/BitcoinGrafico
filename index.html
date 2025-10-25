@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gráfico de Cotação de Criptomoedas</title>
+  <title>Gráfico Bitcoin e Criptomoedas</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
-    <h1>Gráfico de Cotação - Criptomoedas</h1>
+    <h1>Gráfico de Criptomoedas</h1>
 
     <div class="selector">
       <label for="crypto">Criptomoeda:</label>
@@ -28,14 +28,27 @@
 
       <button id="updateChart">Atualizar</button>
     </div>
+
+    <div class="price-info">
+      <h2 id="currentPrice">$0.00</h2>
+      <span id="changePercent">--</span>
+    </div>
+
+    <div class="period-buttons">
+      <button class="period" data-period="1d">24h</button>
+      <button class="period active" data-period="7d">7 dias</button>
+      <button class="period" data-period="30d">30 dias</button>
+      <button class="period" data-period="1y">1 ano</button>
+    </div>
   </header>
 
   <main>
+    <div id="loading">Carregando dados...</div>
     <canvas id="priceChart"></canvas>
   </main>
 
   <footer>
-    <p>Projeto desenvolvido por Lincoln, Yago e Gabriel — Faculdade ADS</p>
+    <p>Projeto desenvolvido por Lincoln — Faculdade ADS</p>
   </footer>
 
   <script src="script.js"></script>

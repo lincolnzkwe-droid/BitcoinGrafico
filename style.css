@@ -35,16 +35,60 @@ button:hover {
   cursor: pointer;
 }
 
+.period-buttons {
+  margin-top: 10px;
+}
+
+.period {
+  background-color: #30363d;
+  border: none;
+  border-radius: 6px;
+  color: #c9d1d9;
+  padding: 6px 12px;
+  margin: 3px;
+  font-size: 14px;
+}
+
+.period.active {
+  background-color: #238636;
+}
+
+.price-info {
+  margin-top: 15px;
+}
+
+#currentPrice {
+  font-size: 28px;
+  margin: 5px 0;
+  color: #00ff99;
+}
+
+#changePercent {
+  font-size: 16px;
+  color: #00ff99;
+}
+
+#changePercent.negative {
+  color: #ff4d4d;
+}
+
 main {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 30px;
 }
 
+#loading {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #8b949e;
+}
+
 canvas {
-  max-width: 90%;
+  max-width: 95%;
   background-color: #0d1117;
 }
 
