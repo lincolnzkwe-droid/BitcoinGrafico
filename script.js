@@ -2,7 +2,7 @@ const ctx = document.getElementById("priceChart").getContext("2d");
 let chart;
 
 async function fetchCryptoData(crypto, currency) {
-  const url = `https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=${currency}&days=7&interval=hourly`;
+  const url = `https://api.allorigins.win/raw?url=https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=${currency}&days=7&interval=hourly`;
   const response = await fetch(url);
   const data = await response.json();
 
