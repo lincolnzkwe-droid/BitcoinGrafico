@@ -1,101 +1,11 @@
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #0d1117;
+  background-color: #0d1117;
   color: #c9d1d9;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-header {
-  background-color: #161b22;
-  padding: 20px;
+  font-family: Arial, sans-serif;
   text-align: center;
-  border-bottom: 1px solid #30363d;
-}
-
-.selector {
-  margin-top: 15px;
-}
-
-select, button {
-  background-color: #21262d;
-  color: #c9d1d9;
-  border: 1px solid #30363d;
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin: 0 5px;
-  font-size: 15px;
-}
-
-button:hover {
-  background-color: #238636;
-  cursor: pointer;
-}
-
-.period-buttons {
-  margin-top: 10px;
-}
-
-.period {
-  background-color: #30363d;
-  border: none;
-  border-radius: 6px;
-  color: #c9d1d9;
-  padding: 6px 12px;
-  margin: 3px;
-  font-size: 14px;
-}
-
-.period.active {
-  background-color: #238636;
-}
-
-.price-info {
-  margin-top: 15px;
-}
-
-#currentPrice {
-  font-size: 28px;
-  margin: 5px 0;
-  color: #00ff99;
-}
-
-#changePercent {
-  font-size: 16px;
-  color: #00ff99;
-}
-
-#changePercent.negative {
-  color: #ff4d4d;
-}
-
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-}
-
-#loading {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #8b949e;
 }
 
 canvas {
-  max-width: 95%;
-  background-color: #0d1117;
-}
-
-footer {
-  text-align: center;
-  padding: 10px;
-  border-top: 1px solid #30363d;
-  background-color: #161b22;
-  font-size: 14px;
+  max-width: 90%;
+  margin-top: 20px;
 }
