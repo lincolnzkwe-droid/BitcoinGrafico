@@ -1,20 +1,13 @@
-// Seleciona o canvas onde o gráfico será renderizado
 const ctx = document.getElementById("priceChart").getContext("2d");
-let chart; // variável global do gráfico
+let chart;
 
-// 🔹 Função para buscar dados da API CoinCap
-async function fetchCryptoData(crypto, currency) {
+// 🔹 Busca histórico da CoinCap (em USD sempre)
+async function fetchCryptoData(crypto) {
   try {
-    // Define o intervalo dos últimos 7 dias
     const end = Date.now();
-    const start = end - (7 * 24 * 60 * 60 * 1000); // 7 dias em milissegundos
-
-    // CoinCap fornece dados históricos em USD
+    const start = end - 7 * 24 * 60 * 60 * 1000; // últimos 7 dias
     const url = `https://api.coincap.io/v2/assets/${crypto}/history?interval=h1&start=${start}&end=${end}`;
-
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`Erro ${response.status}`);
-
     const json = await response.json();
     const data = json.data;
 
@@ -23,12 +16,10 @@ async function fetchCryptoData(crypto, currency) {
       return [];
     }
 
-    const prices = data.map(p => ({
+    return data.map(p => ({
       time: new Date(p.time),
       value: parseFloat(p.priceUsd)
     }));
-
-    return prices;
 
   } catch (error) {
     console.error("❌ Erro ao buscar dados CoinCap:", error);
@@ -36,19 +27,36 @@ async function fetchCryptoData(crypto, currency) {
   }
 }
 
-// 🔹 Função para renderizar o gráfico
-async function renderChart(crypto = "bitcoin", currency = "usd") {
-  const data = await fetchCryptoData(crypto, currency);
+// 🔹 Busca taxa de câmbio para BRL ou EUR
+async function getExchangeRate(toCurrency) {
+  if (toCurrency === "usd") return 1; // já em USD
 
-  if (!data || data.length === 0) {
-    console.error("⚠️ Nenhum dado disponível para renderizar o gráfico.");
-    return;
+  try {
+    const url = `https://api.exchangerate.host/latest?base=USD&symbols=${toCurrency.toUpperCase()}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.rates[toCurrency.toUpperCase()] || 1;
+  } catch (error) {
+    console.error("Erro ao buscar taxa de câmbio:", error);
+    return 1;
   }
+}
 
-  const labels = data.map(d => d.time.toLocaleString());
-  const values = data.map(d => d.value);
+// 🔹 Renderiza o gráfico
+async function renderChart(crypto = "bitcoin", currency = "usd") {
+  const cryptoData = await fetchCryptoData(crypto);
+  if (!cryptoData.length) return console.error("⚠️ Nenhum dado disponível para renderizar o gráfico.");
 
-  // Destroi o gráfico antigo se existir
+  // Converte valores conforme moeda selecionada
+  const rate = await getExchangeRate(currency);
+  const convertedData = cryptoData.map(d => ({
+    time: d.time,
+    value: d.value * rate
+  }));
+
+  const labels = convertedData.map(d => d.time.toLocaleString());
+  const values = convertedData.map(d => d.value);
+
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -56,14 +64,14 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
     data: {
       labels,
       datasets: [{
-        label: `${crypto.toUpperCase()} (USD)`,
+        label: `${crypto.toUpperCase()} em ${currency.toUpperCase()}`,
         data: values,
         borderColor: "#00ff99",
+        backgroundColor: "rgba(0,255,153,0.1)",
         borderWidth: 2,
         pointRadius: 0,
-        fill: true,
-        backgroundColor: "rgba(0,255,153,0.1)",
-        tension: 0.3
+        tension: 0.3,
+        fill: true
       }]
     },
     options: {
@@ -80,11 +88,12 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
   });
 }
 
-// 🔹 Atualiza o gráfico ao clicar no botão
+// 🔹 Atualiza o gráfico quando clicar em "Atualizar"
 document.getElementById("updateChart").addEventListener("click", () => {
   const crypto = document.getElementById("crypto").value;
-  renderChart(crypto);
+  const currency = document.getElementById("currency").value;
+  renderChart(crypto, currency);
 });
 
-// 🔹 Renderiza o gráfico inicial ao carregar
+// 🔹 Renderiza gráfico inicial
 renderChart();
