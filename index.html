@@ -3,53 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gráfico Bitcoin e Criptomoedas</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Gráfico de Criptomoedas</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-  <header>
-    <h1>Gráfico de Criptomoedas</h1>
+<body style="background:#0d1117;color:#c9d1d9;font-family:Arial;text-align:center;">
+  <h1>Gráfico de Criptomoedas (CoinCap)</h1>
 
-    <div class="selector">
-      <label for="crypto">Criptomoeda:</label>
-      <select id="crypto">
-        <option value="BTC">Bitcoin (BTC)</option>
-        <option value="ETH">Ethereum (ETH)</option>
-        <option value="SOL">Solana (SOL)</option>
-        <option value="DOGE">Dogecoin (DOGE)</option>
-      </select>
+  <div>
+    <label for="crypto">Criptomoeda:</label>
+    <select id="crypto">
+      <option value="bitcoin">Bitcoin (BTC)</option>
+      <option value="ethereum">Ethereum (ETH)</option>
+      <option value="solana">Solana (SOL)</option>
+      <option value="dogecoin">Dogecoin (DOGE)</option>
+    </select>
 
-      <label for="currency">Moeda:</label>
-      <select id="currency">
-        <option value="USDT">Dólar (USDT)</option>
-        <option value="BUSD">Binance USD (BUSD)</option>
-      </select>
+    <label for="currency">Moeda:</label>
+    <select id="currency">
+      <option value="USD">Dólar (USD)</option>
+      <option value="BRL">Real (BRL)</option>
+    </select>
 
-      <button id="updateChart">Atualizar</button>
-    </div>
+    <button id="updateChart">Atualizar</button>
+  </div>
 
-    <div class="price-info">
-      <h2 id="currentPrice">$0.00</h2>
-      <span id="changePercent">--</span>
-    </div>
-
-    <div class="period-buttons">
-      <button class="period" data-period="1d">24h</button>
-      <button class="period active" data-period="7d">7 dias</button>
-      <button class="period" data-period="30d">30 dias</button>
-      <button class="period" data-period="1y">1 ano</button>
-    </div>
-  </header>
-
-  <main>
-    <div id="loading">Carregando dados...</div>
-    <canvas id="priceChart"></canvas>
-  </main>
-
-  <footer>
-    <p>Projeto desenvolvido por Lincoln — Faculdade ADS</p>
-  </footer>
+  <canvas id="priceChart" style="max-width:90%;margin-top:20px;"></canvas>
 
   <script src="script.js"></script>
 </body>

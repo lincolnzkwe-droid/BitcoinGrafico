@@ -1,49 +1,44 @@
 const ctx = document.getElementById("priceChart").getContext("2d");
 let chart;
 
-// 🔹 Função: busca dados da Binance com proxy confiável (AllOrigins)
+// 🔹 Busca histórico da CoinCap (sempre em USD)
 async function fetchCryptoData(crypto, currency) {
   try {
-    // Mapeia pares válidos Binance
-    const symbol =
-      currency === "BRL"
-        ? `${crypto}BRL` // Exemplo: BTCBRL
-        : `${crypto}USDT`; // Exemplo: BTCUSDT (USD)
-
-    // Usa proxy para evitar bloqueio CORS no GitHub Pages
-    const target = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=168`;
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`;
-
+    const url = `https://api.coincap.io/v2/assets/${crypto}/history?interval=h1`;
     const response = await fetch(url);
-    const wrapped = await response.json();
+    const json = await response.json();
+    const data = json.data;
 
-    // A resposta real vem dentro de wrapped.contents
-    const data = JSON.parse(wrapped.contents);
-
-    // Se não vier array, erro
-    if (!Array.isArray(data) || data.length === 0) {
-      console.error("⚠️ Nenhum dado de preço encontrado. Resposta da API:", data);
+    if (!data || data.length === 0) {
+      console.error("⚠️ Nenhum dado de preço encontrado:", json);
       return [];
     }
 
-    // Formata dados para o gráfico
-    return data.map(item => ({
-      time: new Date(item[0]),
-      value: parseFloat(item[4]),
+    // Busca taxa de conversão para BRL se necessário
+    let rate = 1;
+    if (currency === "BRL") {
+      const fx = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=BRL");
+      const fxData = await fx.json();
+      rate = fxData.rates.BRL || 1;
+    }
+
+    return data.map(p => ({
+      time: new Date(p.time),
+      value: parseFloat(p.priceUsd) * rate
     }));
-  } catch (error) {
-    console.error("❌ Erro ao buscar dados da Binance:", error);
+  } catch (err) {
+    console.error("❌ Erro ao buscar dados:", err);
     return [];
   }
 }
 
-// 🔹 Função: desenha o gráfico
-async function renderChart(crypto = "BTC", currency = "USD") {
-  const cryptoData = await fetchCryptoData(crypto, currency);
-  if (!cryptoData.length) return console.warn("⚠️ Nenhum dado disponível para renderizar o gráfico.");
+// 🔹 Renderiza o gráfico
+async function renderChart(crypto = "bitcoin", currency = "USD") {
+  const data = await fetchCryptoData(crypto, currency);
+  if (!data.length) return console.warn("⚠️ Nenhum dado disponível.");
 
-  const labels = cryptoData.map(d => d.time.toLocaleString());
-  const values = cryptoData.map(d => d.value);
+  const labels = data.map(d => d.time.toLocaleString());
+  const values = data.map(d => d.value);
 
   if (chart) chart.destroy();
 
@@ -51,39 +46,37 @@ async function renderChart(crypto = "BTC", currency = "USD") {
     type: "line",
     data: {
       labels,
-      datasets: [
-        {
-          label: `${crypto}/${currency}`,
-          data: values,
-          borderColor: "#00ff99",
-          backgroundColor: "rgba(0,255,153,0.1)",
-          borderWidth: 2,
-          pointRadius: 0,
-          tension: 0.3,
-          fill: true,
-        },
-      ],
+      datasets: [{
+        label: `${crypto.toUpperCase()} em ${currency}`,
+        data: values,
+        borderColor: "#00ff99",
+        backgroundColor: "rgba(0,255,153,0.1)",
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: true
+      }]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: { labels: { color: "#c9d1d9" } },
-        tooltip: { mode: "index", intersect: false },
-      },
       scales: {
         x: { ticks: { color: "#c9d1d9" } },
-        y: { ticks: { color: "#c9d1d9" } },
+        y: { ticks: { color: "#c9d1d9" } }
       },
-    },
+      plugins: {
+        legend: { labels: { color: "#c9d1d9" } },
+        tooltip: { mode: "index", intersect: false }
+      }
+    }
   });
 }
 
-// 🔹 Botão de atualização
+// 🔹 Atualiza ao clicar
 document.getElementById("updateChart").addEventListener("click", () => {
-  const crypto = document.getElementById("crypto").value.toUpperCase();
+  const crypto = document.getElementById("crypto").value.toLowerCase();
   const currency = document.getElementById("currency").value.toUpperCase();
   renderChart(crypto, currency);
 });
 
-// 🔹 Carrega gráfico inicial
+// 🔹 Inicial
 renderChart();
