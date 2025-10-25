@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gráfico de Cotação de Criptomoedas</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Gráfico de Cotação - Bitcoin e Outras Moedas</h1>
+    <div class="selector">
+      <label for="crypto">Criptomoeda:</label>
+      <select id="crypto">
+        <option value="bitcoin">Bitcoin (BTC)</option>
+        <option value="ethereum">Ethereum (ETH)</option>
+        <option value="solana">Solana (SOL)</option>
+      </select>
+
+      <label for="currency">Moeda:</label>
+      <select id="currency">
+        <option value="usd">Dólar (USD)</option>
+        <option value="brl">Real (BRL)</option>
+        <option value="eur">Euro (EUR)</option>
+      </select>
+
+      <button id="updateChart">Atualizar</button>
+    </div>
+  </header>
+
+  <main>
+    <canvas id="priceChart"></canvas>
+  </main>
+
+  <footer>
+    <p>Desenvolvido por Lincoln — Projeto Faculdade</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
