@@ -1,38 +1,29 @@
 // Seleciona o canvas onde o gráfico será renderizado
 const ctx = document.getElementById("priceChart").getContext("2d");
-let chart; // variável global para armazenar o gráfico atual
+let chart; // variável global do gráfico
 
-// 🔹 Função para buscar dados da API da CoinGecko (usando proxy AllOrigins)
+// 🔹 Função para buscar dados da API CoinCap
 async function fetchCryptoData(crypto, currency) {
-  // Proxy CORS para evitar bloqueio do GitHub Pages
-  const url = `https://api.allorigins.win/raw?url=https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=${currency}&days=7&interval=hourly`;
-
   try {
+    // CoinCap fornece dados apenas em USD
+    const url = `https://api.coincap.io/v2/assets/${crypto}/history?interval=h1`;
+
     const response = await fetch(url);
+    if (!response.ok) throw new Error(`Erro ${response.status}`);
 
-    // Se a resposta for inválida, lança erro
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
-    }
+    const json = await response.json();
+    const data = json.data;
 
-    const data = await response.json();
-
-    // Se não vier o campo "prices", exibe erro no console
-    if (!data.prices) {
-      console.error("⚠️ Nenhum dado de preço encontrado. Resposta da API:", data);
-      return [];
-    }
-
-    // Mapeia os dados de preço (timestamp e valor)
-    const prices = data.prices.map(p => ({
-      time: new Date(p[0]),
-      value: p[1]
+    // Mapeia o histórico para timestamps e valores
+    const prices = data.map(p => ({
+      time: new Date(p.time),
+      value: parseFloat(p.priceUsd)
     }));
 
     return prices;
 
   } catch (error) {
-    console.error("❌ Erro ao buscar dados:", error);
+    console.error("❌ Erro ao buscar dados CoinCap:", error);
     return [];
   }
 }
@@ -49,7 +40,7 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
   const labels = data.map(d => d.time.toLocaleString());
   const values = data.map(d => d.value);
 
-  // Se já houver um gráfico, destrói antes de criar outro
+  // Destroi o gráfico antigo se existir
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -57,7 +48,7 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
     data: {
       labels,
       datasets: [{
-        label: `${crypto.toUpperCase()} em ${currency.toUpperCase()}`,
+        label: `${crypto.toUpperCase()} (USD)`,
         data: values,
         borderColor: "#00ff99",
         borderWidth: 2,
@@ -70,12 +61,8 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
     options: {
       responsive: true,
       scales: {
-        x: {
-          ticks: { color: "#c9d1d9" }
-        },
-        y: {
-          ticks: { color: "#c9d1d9" }
-        }
+        x: { ticks: { color: "#c9d1d9" } },
+        y: { ticks: { color: "#c9d1d9" } }
       },
       plugins: {
         legend: { labels: { color: "#c9d1d9" } },
@@ -85,12 +72,11 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
   });
 }
 
-// 🔹 Botão de atualização manual
+// 🔹 Atualiza o gráfico ao clicar no botão
 document.getElementById("updateChart").addEventListener("click", () => {
   const crypto = document.getElementById("crypto").value;
-  const currency = document.getElementById("currency").value;
-  renderChart(crypto, currency);
+  renderChart(crypto);
 });
 
-// 🔹 Renderiza o gráfico inicial ao carregar a página
+// 🔹 Renderiza o gráfico inicial ao carregar
 renderChart();
