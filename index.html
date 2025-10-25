@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gráfico de Criptomoedas</title>
+  <title>Gráfico de Criptomoedas - Binance</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body style="background:#0d1117;color:#c9d1d9;font-family:Arial;text-align:center;">
-  <h1>Gráfico de Criptomoedas (CoinCap)</h1>
+<body>
+  <h1>Gráfico de Cotação - Binance</h1>
 
-  <div>
+  <div class="selector">
     <label for="crypto">Criptomoeda:</label>
     <select id="crypto">
-      <option value="bitcoin">Bitcoin (BTC)</option>
-      <option value="ethereum">Ethereum (ETH)</option>
-      <option value="solana">Solana (SOL)</option>
-      <option value="dogecoin">Dogecoin (DOGE)</option>
+      <option value="BTC">Bitcoin (BTC)</option>
+      <option value="ETH">Ethereum (ETH)</option>
+      <option value="SOL">Solana (SOL)</option>
+      <option value="DOGE">Dogecoin (DOGE)</option>
     </select>
 
     <label for="currency">Moeda:</label>
@@ -27,7 +28,7 @@
     <button id="updateChart">Atualizar</button>
   </div>
 
-  <canvas id="priceChart" style="max-width:90%;margin-top:20px;"></canvas>
+  <canvas id="priceChart"></canvas>
 
   <script src="script.js"></script>
 </body>
