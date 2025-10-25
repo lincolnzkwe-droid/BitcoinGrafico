@@ -17,7 +17,7 @@ header {
 }
 
 .selector {
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 select, button {
@@ -27,10 +27,12 @@ select, button {
   border-radius: 6px;
   padding: 6px 10px;
   margin: 0 5px;
+  font-size: 15px;
 }
 
 button:hover {
   background-color: #238636;
+  cursor: pointer;
 }
 
 main {
@@ -51,4 +53,5 @@ footer {
   padding: 10px;
   border-top: 1px solid #30363d;
   background-color: #161b22;
+  font-size: 14px;
 }
