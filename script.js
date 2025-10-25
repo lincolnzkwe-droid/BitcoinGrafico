@@ -1,31 +1,28 @@
 const ctx = document.getElementById("priceChart").getContext("2d");
-const loading = document.getElementById("loading");
-const priceElement = document.getElementById("currentPrice");
-const changeElement = document.getElementById("changePercent");
 let chart;
 
-// 🔹 Define o número de horas por período
-function getLimit(period) {
-  switch (period) {
-    case "1d": return 24;
-    case "7d": return 24 * 7;
-    case "30d": return 24 * 30;
-    case "1y": return 24 * 365;
-    default: return 168;
-  }
-}
+// 🔹 Define o intervalo (1h candles, últimos 7 dias)
+const LIMIT = 24 * 7; // 7 dias (24 horas por dia)
 
-// 🔹 Busca dados da Binance
-async function fetchCryptoData(crypto, currency, period) {
+// 🔹 Função que busca dados da Binance
+async function fetchCryptoData(crypto, currency) {
   try {
-    const limit = Math.min(getLimit(period), 1000);
-    const symbol = (crypto + currency).toUpperCase();
-    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=${limit}`;
+    // Ajusta o par conforme a moeda escolhida
+    let symbol = "";
+    if (currency === "BRL") {
+      symbol = `${crypto}BRL`; // Exemplo: BTCBRL
+    } else if (currency === "USD") {
+      symbol = `${crypto}USDT`; // Exemplo: BTCUSDT
+    }
+
+    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=${LIMIT}`;
     const response = await fetch(url);
     const data = await response.json();
 
-    if (!Array.isArray(data) || data.length === 0) {
-      console.error("⚠️ Nenhum dado encontrado:", data);
+    // Caso a Binance retorne erro (objeto e não array)
+    if (!Array.isArray(data)) {
+      console.error("⚠️ Erro da Binance:", data);
+      alert(`O par ${symbol} não está disponível na Binance.`);
       return [];
     }
 
@@ -33,44 +30,18 @@ async function fetchCryptoData(crypto, currency, period) {
       time: new Date(item[0]),
       value: parseFloat(item[4])
     }));
+
   } catch (error) {
     console.error("❌ Erro ao buscar dados da Binance:", error);
+    alert("Erro ao conectar com a Binance. Verifique sua conexão.");
     return [];
   }
 }
 
-// 🔹 Atualiza valores no topo (preço atual + variação)
-function updatePriceInfo(data) {
-  if (data.length < 2) return;
-
-  const last = data[data.length - 1].value;
-  const first = data[0].value;
-  const change = ((last - first) / first) * 100;
-
-  priceElement.textContent = `$${last.toFixed(2)}`;
-  changeElement.textContent = `${change.toFixed(2)}%`;
-
-  if (change >= 0) {
-    changeElement.classList.remove("negative");
-    changeElement.textContent = `▲ +${change.toFixed(2)}%`;
-  } else {
-    changeElement.classList.add("negative");
-    changeElement.textContent = `▼ ${change.toFixed(2)}%`;
-  }
-}
-
 // 🔹 Renderiza o gráfico
-async function renderChart(crypto = "BTC", currency = "USDT", period = "7d") {
-  loading.style.display = "block";
-  const cryptoData = await fetchCryptoData(crypto, currency, period);
-
-  if (!cryptoData.length) {
-    loading.textContent = "Nenhum dado encontrado.";
-    return;
-  }
-
-  loading.style.display = "none";
-  updatePriceInfo(cryptoData);
+async function renderChart(crypto = "BTC", currency = "USD") {
+  const cryptoData = await fetchCryptoData(crypto, currency);
+  if (!cryptoData.length) return;
 
   const labels = cryptoData.map(d => d.time.toLocaleString());
   const values = cryptoData.map(d => d.value);
@@ -94,36 +65,23 @@ async function renderChart(crypto = "BTC", currency = "USDT", period = "7d") {
     },
     options: {
       responsive: true,
+      plugins: {
+        legend: { labels: { color: "#c9d1d9" } },
+        tooltip: { mode: "index", intersect: false }
+      },
       scales: {
         x: { ticks: { color: "#c9d1d9" } },
         y: { ticks: { color: "#c9d1d9" } }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: { mode: "index", intersect: false }
       }
     }
   });
 }
 
-// 🔹 Eventos dos botões de período
-document.querySelectorAll(".period").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".period").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    const crypto = document.getElementById("crypto").value.toUpperCase();
-    const currency = document.getElementById("currency").value.toUpperCase();
-    const period = btn.dataset.period;
-    renderChart(crypto, currency, period);
-  });
-});
-
-// 🔹 Botão "Atualizar"
+// 🔹 Atualiza ao clicar no botão
 document.getElementById("updateChart").addEventListener("click", () => {
   const crypto = document.getElementById("crypto").value.toUpperCase();
   const currency = document.getElementById("currency").value.toUpperCase();
-  const activePeriod = document.querySelector(".period.active").dataset.period;
-  renderChart(crypto, currency, activePeriod);
+  renderChart(crypto, currency);
 });
 
 // 🔹 Renderização inicial
