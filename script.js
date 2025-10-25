@@ -5,8 +5,12 @@ let chart; // variável global do gráfico
 // 🔹 Função para buscar dados da API CoinCap
 async function fetchCryptoData(crypto, currency) {
   try {
-    // CoinCap fornece dados apenas em USD
-    const url = `https://api.coincap.io/v2/assets/${crypto}/history?interval=h1`;
+    // Define o intervalo dos últimos 7 dias
+    const end = Date.now();
+    const start = end - (7 * 24 * 60 * 60 * 1000); // 7 dias em milissegundos
+
+    // CoinCap fornece dados históricos em USD
+    const url = `https://api.coincap.io/v2/assets/${crypto}/history?interval=h1&start=${start}&end=${end}`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Erro ${response.status}`);
@@ -14,7 +18,11 @@ async function fetchCryptoData(crypto, currency) {
     const json = await response.json();
     const data = json.data;
 
-    // Mapeia o histórico para timestamps e valores
+    if (!data || data.length === 0) {
+      console.error("⚠️ Nenhum dado de preço encontrado. Resposta da API:", json);
+      return [];
+    }
+
     const prices = data.map(p => ({
       time: new Date(p.time),
       value: parseFloat(p.priceUsd)
