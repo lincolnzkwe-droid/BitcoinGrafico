@@ -1,35 +1,53 @@
 const ctx = document.getElementById("priceChart").getContext("2d");
 let chart;
 
-// 🔹 Busca histórico da CoinCap (em USD sempre)
-async function fetchCryptoData(crypto) {
+// 🔹 Busca histórico de preços da API CoinPaprika
+async function fetchCryptoData(crypto, currency) {
   try {
-    const end = Date.now();
-    const start = end - 7 * 24 * 60 * 60 * 1000; // últimos 7 dias
-    const url = `https://api.coincap.io/v2/assets/${crypto}/history?interval=h1&start=${start}&end=${end}`;
-    const response = await fetch(url);
-    const json = await response.json();
-    const data = json.data;
+    // Mapeamento dos IDs da CoinPaprika
+    const coinMap = {
+      bitcoin: "btc-bitcoin",
+      ethereum: "eth-ethereum",
+      solana: "sol-solana",
+      dogecoin: "doge-dogecoin"
+    };
 
-    if (!data || data.length === 0) {
-      console.error("⚠️ Nenhum dado de preço encontrado. Resposta da API:", json);
+    const coinId = coinMap[crypto] || "btc-bitcoin";
+
+    // CoinPaprika retorna dados em USD
+    const url = `https://api.coinpaprika.com/v1/tickers/${coinId}/historical?start=${getDate(7)}&interval=1h`;
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+    const data = await response.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error("⚠️ Nenhum dado de preço encontrado. Resposta da API:", data);
       return [];
     }
 
     return data.map(p => ({
-      time: new Date(p.time),
-      value: parseFloat(p.priceUsd)
+      time: new Date(p.timestamp),
+      value: parseFloat(p.price)
     }));
 
   } catch (error) {
-    console.error("❌ Erro ao buscar dados CoinCap:", error);
+    console.error("❌ Erro ao buscar dados CoinPaprika:", error);
     return [];
   }
 }
 
-// 🔹 Busca taxa de câmbio para BRL ou EUR
+// 🔹 Função auxiliar: retorna data formatada YYYY-MM-DD
+function getDate(daysAgo) {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  return date.toISOString().split("T")[0];
+}
+
+// 🔹 Busca taxa de câmbio (para converter USD → BRL ou EUR)
 async function getExchangeRate(toCurrency) {
-  if (toCurrency === "usd") return 1; // já em USD
+  if (toCurrency === "usd") return 1;
 
   try {
     const url = `https://api.exchangerate.host/latest?base=USD&symbols=${toCurrency.toUpperCase()}`;
@@ -44,10 +62,9 @@ async function getExchangeRate(toCurrency) {
 
 // 🔹 Renderiza o gráfico
 async function renderChart(crypto = "bitcoin", currency = "usd") {
-  const cryptoData = await fetchCryptoData(crypto);
+  const cryptoData = await fetchCryptoData(crypto, currency);
   if (!cryptoData.length) return console.error("⚠️ Nenhum dado disponível para renderizar o gráfico.");
 
-  // Converte valores conforme moeda selecionada
   const rate = await getExchangeRate(currency);
   const convertedData = cryptoData.map(d => ({
     time: d.time,
@@ -88,12 +105,12 @@ async function renderChart(crypto = "bitcoin", currency = "usd") {
   });
 }
 
-// 🔹 Atualiza o gráfico quando clicar em "Atualizar"
+// 🔹 Botão "Atualizar"
 document.getElementById("updateChart").addEventListener("click", () => {
   const crypto = document.getElementById("crypto").value;
   const currency = document.getElementById("currency").value;
   renderChart(crypto, currency);
 });
 
-// 🔹 Renderiza gráfico inicial
+// 🔹 Renderização inicial
 renderChart();
