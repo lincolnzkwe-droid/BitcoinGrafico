@@ -9,3 +9,36 @@ canvas {
   max-width: 90%;
   margin-top: 20px;
 }
+
+.selector {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ranges {
+  margin: 10px 0 6px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.range-btn {
+  background: #161b22;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.range-btn:hover {
+  background: #21262d;
+}
+
+.range-btn.active {
+  border-color: #00ff99;
+  box-shadow: 0 0 0 2px rgba(0,255,153,0.15) inset;
+}

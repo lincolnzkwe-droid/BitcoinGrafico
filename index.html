@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Gráfico de Cotação - Binance</h1>
+  <h1>Gráfico de Cotação - Criptomoeda</h1>
 
   <div class="selector">
     <label for="crypto">Criptomoeda:</label>
@@ -26,6 +26,15 @@
     </select>
 
     <button id="updateChart">Atualizar</button>
+  </div>
+
+  <!-- Filtros de período -->
+  <div class="ranges">
+    <button data-range="1D" class="range-btn active">1D</button>
+    <button data-range="5D" class="range-btn">5D</button>
+    <button data-range="1M" class="range-btn">1M</button>
+    <button data-range="1Y" class="range-btn">1Y</button>
+    <button data-range="YTD" class="range-btn">YTD</button>
   </div>
 
   <canvas id="priceChart"></canvas>
